@@ -1,3 +1,3 @@
 #!/bin/sh
 
-docker build . -t evorra/local-glue:3.0
+docker build . -t public.ecr.aws/n4q2f2p4/glue-local:3.0

@@ -49,24 +49,26 @@ ENV GLUE_PY_FILES=$GLUE_HOME/PyGlue.zip
 ENV SPARK_CONF_DIR=$GLUE_HOME/conf
 ENV GLUE_JARS_DIR=$GLUE_HOME/jarsv1
 
-#ENV PYTHONPATH="${SPARK_HOME}/python/:${PYTHONPATH}"
-#ENV PYTHONPATH="${SPARK_HOME}/python/lib/py4j-0.10.7-src.zip:${PYTHONPATH}"
-#ENV PYTHONPATH="${GLUE_PY_FILES}:${PYTHONPATH}"
-
 # Generate spark-defaults.conf
 RUN mkdir $SPARK_CONF_DIR && \
     echo "spark.driver.extraClassPath $GLUE_JARS_DIR/*" >> $SPARK_CONF_DIR/spark-defaults.conf && \
     echo "spark.executor.extraClassPath $GLUE_JARS_DIR/*" >> $SPARK_CONF_DIR/spark-defaults.conf
 
-# these steps have to be executed manually and the image updated with docker commit
+ENV PYTHONPATH="${SPARK_HOME}/python/:${PYTHONPATH}"
+ENV PYTHONPATH="${SPARK_HOME}/python/lib/py4j-0.10.7-src.zip:${PYTHONPATH}"
+ENV PYTHONPATH="${GLUE_PY_FILES}:${PYTHONPATH}"
 
 # launches gluepyspark so it downloads all dependencies
-#RUN chmod +x $GLUE_HOME/bin/glue-setup.sh && \
-#    $GLUE_HOME/bin/glue-setup.sh
+RUN chmod +x $GLUE_HOME/bin/glue-setup.sh && \
+    $GLUE_HOME/bin/glue-setup.sh
+    
 # for some reason there's a conflict with netty libraries I remove the glue ones
-#RUN rm $GLUE_HOME//jarsv1/netty-*
+RUN rm $GLUE_HOME/jarsv1/netty-*
 
-# commented manually 'source $ROOT_DIR/bin/glue-setup.sh' in gluepyspark, gluepytest and gluesparksubmit
+# comment 'source $ROOT_DIR/bin/glue-setup.sh' in gluepyspark, gluepytest and gluesparksubmit
+RUN cp $GLUE_HOME/bin/gluepyspark $GLUE_HOME/bin/gluepyspark.old && cat $GLUE_HOME/bin/gluepyspark.old | sed 's/.*glue-setup.sh/#removed the setup line/g' > $GLUE_HOME/bin/gluepyspark && \
+    cp $GLUE_HOME/bin/gluepytest $GLUE_HOME/bin/gluepytest.old && cat $GLUE_HOME/bin/gluepytest.old | sed 's/.*glue-setup.sh/#removed the setup line/g' > $GLUE_HOME/bin/gluepytest && \
+    cp $GLUE_HOME/bin/gluesparksubmit $GLUE_HOME/bin/gluesparksubmit.old && cat $GLUE_HOME/bin/gluesparksubmit.old | sed 's/.*glue-setup.sh/#removed the setup line/g' > $GLUE_HOME/bin/gluesparksubmit
 
 WORKDIR /project
 CMD ["bash"]

@@ -1,4 +1,6 @@
 #!/bin/sh
 
-# -p 4040:4040 to expose Jupiter service
-docker run -it --rm -p 4041:4041 -v $(pwd):/project --name local-glue evorra/local-glue:latest bash
+IMAGE=public.ecr.aws/n4q2f2p4/glue-local:3.0
+
+# -p 4040:4040
+docker run -it --rm -v $(pwd):/project --name glue-local $IMAGE bash
