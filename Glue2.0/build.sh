@@ -1,3 +1,3 @@
 #!/bin/sh
 
-docker build . -t evorra/local-glue:2.0
+docker build . -t evorra/glue-local:2.0
