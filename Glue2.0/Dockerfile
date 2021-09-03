@@ -32,7 +32,9 @@ RUN apt-get -qq install -y pip && \
 
 # install a few additional python packages
 RUN python -m pip install awscli && \
-    python -m pip install -U pytest
+    python -m pip install -U pytest \
+    pip install boto3 \
+    pip install pandas
 
 # copy java 8 from a prebuilt docker image (faster)
 COPY --from=openjdk:8-jdk-slim-buster /usr/local/openjdk-8 /usr/local/openjdk-8

@@ -52,7 +52,7 @@ RUN mkdir $SPARK_CONF_DIR && \
     echo "spark.executor.extraClassPath $GLUE_JARS_DIR/*" >> $SPARK_CONF_DIR/spark-defaults.conf
 
 ENV PYTHONPATH="${SPARK_HOME}/python/:${PYTHONPATH}"
-ENV PYTHONPATH="${SPARK_HOME}/python/lib/py4j-0.10.7-src.zip:${PYTHONPATH}"
+ENV PYTHONPATH="${SPARK_HOME}/python/lib/py4j-0.10.9-src.zip:${PYTHONPATH}"
 ENV PYTHONPATH="${GLUE_PY_FILES}:${PYTHONPATH}"
 
 # launches gluepyspark so it downloads all dependencies
@@ -60,10 +60,11 @@ RUN chmod +x $GLUE_HOME/bin/glue-setup.sh && \
     $GLUE_HOME/bin/glue-setup.sh
 
 # forces the installation of pyspark on top of spark (to complete spark distribution)
-RUN pip install pyspark
+RUN pip install pyspark && \
+    ln -s /usr/local/bin/pyspark /opt/spark-3.1.1-amzn-0-bin-3.2.1-amzn-3/bin/pyspark
 
 # for some reason there's a conflict with netty libraries I remove the glue ones
-RUN rm $GLUE_HOME/jarsv1/netty-*
+#RUN rm $GLUE_HOME/jarsv1/netty-*
 
 # comment 'source $ROOT_DIR/bin/glue-setup.sh' in gluepyspark, gluepytest and gluesparksubmit
 RUN cp $GLUE_HOME/bin/gluepyspark $GLUE_HOME/bin/gluepyspark.old && cat $GLUE_HOME/bin/gluepyspark.old | sed 's/.*glue-setup.sh/#removed the setup line/g' > $GLUE_HOME/bin/gluepyspark && \
