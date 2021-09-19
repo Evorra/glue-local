@@ -1,75 +1,89 @@
-## inspired from https://github.com/webysther/aws-glue-docker
-## I followed the instructions at https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-libraries.html
-##
-FROM ubuntu
+FROM python:3.7.12-bullseye
 
-# refresh package list and install a few useful packages
-RUN apt-get -q update -y && \
-    apt-get -qq install -y git && \
-    apt-get install -q -y zip
+# JDK 1.8 installation
+RUN wget https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public -O public.key && \
+	gpg --no-default-keyring --keyring ./adoptopenjdk-keyring.gpg --import ./public.key && \
+	gpg --no-default-keyring --keyring ./adoptopenjdk-keyring.gpg --export --output adoptopenjdk-archive-keyring.gpg && \
+	rm public.key && \
+	rm adoptopenjdk-keyring.gpg && \
+	mv adoptopenjdk-archive-keyring.gpg /usr/share/keyrings && \
+	echo "deb [signed-by=/usr/share/keyrings/adoptopenjdk-archive-keyring.gpg] https://adoptopenjdk.jfrog.io/adoptopenjdk/deb bullseye main" | tee /etc/apt/sources.list.d/adoptopenjdk.list && \
+	apt-get update && \
+	apt-get install -y adoptopenjdk-8-hotspot zip vim
+	
+# Spark / maven (still required?) / Amazon Glue3 packages (captured from live running job : /opt/amazon folder) and Zeppelin
+RUN curl -SsL https://aws-glue-etl-artifacts.s3.amazonaws.com/glue-common/apache-maven-3.6.0-bin.tar.gz | tar -C /opt --warning=no-unknown-keyword -xzf -
+RUN curl -SsL https://aws-glue-etl-artifacts.s3.amazonaws.com/glue-3.0/spark-3.1.1-amzn-0-bin-3.2.1-amzn-3.tgz | tar -C /opt --warning=no-unknown-keyword -xzf -
+#RUN curl -SsL https://mirror.checkdomain.de/apache/zeppelin/zeppelin-0.10.0/zeppelin-0.10.0-bin-all.tgz | tar -C /opt --warning=no-unknown-keyword -xzf -
 
-# install the reccomended maven distribution
-# and reccomended Spark distribution
-ADD https://aws-glue-etl-artifacts.s3.amazonaws.com/glue-common/apache-maven-3.6.0-bin.tar.gz /tmp/maven.tar.gz
-ADD https://aws-glue-etl-artifacts.s3.amazonaws.com/glue-3.0/spark-3.1.1-amzn-0-bin-3.2.1-amzn-3.tgz /tmp/spark.tar.gz
-RUN tar zxvf /tmp/maven.tar.gz -C /opt && \
-    tar zxvf /tmp/spark.tar.gz -C /opt && \
-    rm -rf /tmp/*
+# copy the zip we saved from a Glue worker
+ADD ./zip/glue3-opt-amazon.tgz /
 
-# install Glue libs (v3.0 on main)
-RUN git clone https://github.com/awslabs/aws-glue-libs.git /opt/aws-glue-libs
+# here is the env dump we collected from a Glue worker
+#AWS_DEFAULT_REGION : us-east-1
+#AWS_METADATA_SERVICE_NUM_ATTEMPTS : 50
+#CONTAINER_HOST_PRIVATE_IP : 172.35.33.46
+#ERROR_FILE_NAME_LOCATION : /reporting/error.txt
+#GLUE_COMMAND_CRITERIA : glueetl
+#GLUE_TASK_GROUP_ID : 6c1d9835-6254-4f4b-9030-7bbcbf40331a
+#HOSTNAME : ip-172-35-33-46.ec2.internal
+#OMP_NUM_THREADS : 4
+#PYSPARK_GATEWAY_PORT : 46819
+#PYSPARK_GATEWAY_SECRET : 23d350ca7757fa06ccd2ffde650c0ef1ef63b1a45a1c79a28a918934e309cb94
+#SHLVL : 0
+#SPARK_AUTH_SOCKET_TIMEOUT : 15
+#SPARK_BUFFER_SIZE : 65536
+#PYTHONUNBUFFERED : YES
+#USE_PROXY : false
+#WORKER_TYPE : G.1X
+#HOME : /home/spark
+#GLUE_PYTHON_VERSION : 3
+#GLUE_VERSION : 3.0
+#LANG : en_US.UTF-8
+#LD_LIBRARY_PATH : /opt/amazon/lib/hadoop-lzo-native:/opt/amazon/lib/hadoop-native/:/opt/amazon/lib/glue-native
+#PATH : /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/amazon/bin
+#PWD : /tmp
+#PYSPARK_PYTHON : /usr/bin/python3
+#PYTHONPATH : /opt/amazon/spark/jars/spark-core_2.12-3.1.1-amzn-0.jar:/opt/amazon/spark/python/lib/pyspark.zip:/opt/amazon/spark/python/lib/py4j-0.10.9-src.zip:/opt/amazon/lib/python3.6/site-packages
+#SPARK_CONF_DIR : /opt/amazon/conf
 
-# install python 
-RUN apt-get -qq install -y python3 && \
-    apt-get -qq install -y python-is-python3
-
-# install pip
-RUN apt-get -qq install -y pip && \
-    python -m pip install --upgrade pip
-
-# install a few additional python packages
-RUN python -m pip install awscli && \
-    python -m pip install -U pytest
-
-# copy java 8 from a prebuilt docker images
-COPY --from=openjdk:8-jdk-slim-buster /usr/local/openjdk-8 /usr/local/openjdk-8
-
-# define a bunch of environment variables
-ENV JAVA_HOME=/usr/local/openjdk-8
+# Env variables
 ENV M2_HOME=/opt/apache-maven-3.6.0
+ENV JAVA_HOME=/usr/lib/jvm/adoptopenjdk-8-hotspot-amd64
 ENV SPARK_HOME=/opt/spark-3.1.1-amzn-0-bin-3.2.1-amzn-3
-ENV GLUE_HOME=/opt/aws-glue-libs
+ENV GLUE_HOME=/opt/amazon
+ENV PATH=${M2_HOME}/bin:${GLUE_HOME}/bin:$PATH
+ENV PYTHONPATH=${GLUE_HOME}/spark/jars/spark-core_2.12-3.1.1-amzn-0.jar:${GLUE_HOME}/spark/python/lib/pyspark.zip:${GLUE_HOME}/spark/python/lib/py4j-0.10.9-src.zip:${GLUE_HOME}/lib/python3.6/site-packages
+ENV LD_LIBRARY_PATH=${GLUE_HOME}/lib/hadoop-lzo-native:${GLUE_HOME}/lib/hadoop-native/:${GLUE_HOME}/lib/glue-native
+ENV SPARK_CONF_DIR=${GLUE_HOME}/conf
+ENV PYSPARK_PYTHON=/usr/bin/python3
+#ENV ZEPPELIN_PORT 9001
+#ENV ZEPPELIN_ADDR 0.0.0.0
 
-ENV PATH="${JAVA_HOME}/bin:${PATH}:${M2_HOME}/bin:${GLUE_HOME}/bin/"
+# additional python lib/bin
+RUN pip install awscli pyspark==3.1.1 pytest boto3 delta-spark==1.0.0
+RUN ln -s /usr/local/bin/pyspark ${SPARK_HOME}/bin/pyspark
 
-ENV GLUE_PY_FILES=$GLUE_HOME/PyGlue.zip
-ENV SPARK_CONF_DIR=$GLUE_HOME/conf
-ENV GLUE_JARS_DIR=$GLUE_HOME/jarsv1
+# to run spark in local mode, and enable s3a filesystem instead of EMR
+RUN sed -i 's/spark.master jes/spark.master local/g' /opt/amazon/conf/spark-defaults.conf
+RUN sed -i 's/spark.hadoop.fs.s3.impl com.amazon.ws.emr.hadoop.fs.EmrFileSystem/# spark.hadoop.fs.s3.impl com.amazon.ws.emr.hadoop.fs.EmrFileSystem/g' /opt/amazon/conf/spark-defaults.conf
+RUN sed -i 's/# spark.hadoop.fs.s3.impl org.apache.hadoop.fs.s3a.S3AFileSystem/spark.hadoop.fs.s3.impl org.apache.hadoop.fs.s3a.S3AFileSystem/g' /opt/amazon/conf/spark-defaults.conf
 
-# Generate spark-defaults.conf
-RUN mkdir $SPARK_CONF_DIR && \
-    echo "spark.driver.extraClassPath $GLUE_JARS_DIR/*" >> $SPARK_CONF_DIR/spark-defaults.conf && \
-    echo "spark.executor.extraClassPath $GLUE_JARS_DIR/*" >> $SPARK_CONF_DIR/spark-defaults.conf
+# Apply Spark interpreter config
+#ADD ./interpreter-0.10.0.json /opt/zeppelin-0.10.0-bin-all/conf/interpreter.json
 
-ENV PYTHONPATH="${SPARK_HOME}/python/:${PYTHONPATH}"
-ENV PYTHONPATH="${SPARK_HOME}/python/lib/py4j-0.10.9-src.zip:${PYTHONPATH}"
-ENV PYTHONPATH="${GLUE_PY_FILES}:${PYTHONPATH}"
+# run scripts
+RUN echo '#!/usr/bin/env bash \n\n ${SPARK_HOME}/bin/spark-submit --packages io.delta:delta-core_2.12:1.0.0 --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog" $@' > $GLUE_HOME/bin/gluesparksubmit
+RUN echo '#!/usr/bin/env bash \n\n ${SPARK_HOME}/bin/pyspark --packages io.delta:delta-core_2.12:1.0.0 --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog" $@' > $GLUE_HOME/bin/gluepyspark
+RUN echo '#!/usr/bin/env bash \n\n exec pytest "$@"' > $GLUE_HOME/bin/gluepytest
+RUN chmod +x $GLUE_HOME/bin/gluesparksubmit && \
+	chmod +x $GLUE_HOME/bin/gluepyspark && \
+	chmod +x $GLUE_HOME/bin/gluepytest && \
+	mkdir -p /opt/work
 
-# launches gluepyspark so it downloads all dependencies
-RUN chmod +x $GLUE_HOME/bin/glue-setup.sh && \
-    $GLUE_HOME/bin/glue-setup.sh
-
-# forces the installation of pyspark on top of spark (to complete spark distribution)
-RUN pip install pyspark && \
-    ln -s /usr/local/bin/pyspark /opt/spark-3.1.1-amzn-0-bin-3.2.1-amzn-3/bin/pyspark
-
-# for some reason there's a conflict with netty libraries I remove the glue ones
-#RUN rm $GLUE_HOME/jarsv1/netty-*
-
-# comment 'source $ROOT_DIR/bin/glue-setup.sh' in gluepyspark, gluepytest and gluesparksubmit
-RUN cp $GLUE_HOME/bin/gluepyspark $GLUE_HOME/bin/gluepyspark.old && cat $GLUE_HOME/bin/gluepyspark.old | sed 's/.*glue-setup.sh/#removed the setup line/g' > $GLUE_HOME/bin/gluepyspark && \
-    cp $GLUE_HOME/bin/gluepytest $GLUE_HOME/bin/gluepytest.old && cat $GLUE_HOME/bin/gluepytest.old | sed 's/.*glue-setup.sh/#removed the setup line/g' > $GLUE_HOME/bin/gluepytest && \
-    cp $GLUE_HOME/bin/gluesparksubmit $GLUE_HOME/bin/gluesparksubmit.old && cat $GLUE_HOME/bin/gluesparksubmit.old | sed 's/.*glue-setup.sh/#removed the setup line/g' > $GLUE_HOME/bin/gluesparksubmit
+# Clean-up some tmp files
+RUN find /opt -name "._*" -type f -delete
 
 WORKDIR /project
+#CMD ["/opt/zeppelin-0.10.0-bin-all/bin/zeppelin.sh"]
 CMD ["bash"]

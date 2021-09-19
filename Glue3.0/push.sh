@@ -1,8 +1,7 @@
 #!/bin/sh
-
-#SRC=evorra/glue-local:3.0
-DST=public.ecr.aws/n4q2f2p4/glue-local:3.0
-
-aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/n4q2f2p4
-#docker tag $SRC $DST
+source ./tag.sh
+aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin $REPO
 docker push $DST
+
+# github
+# ghcr.io/evorra/glue-local 

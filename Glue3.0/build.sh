@@ -1,3 +1,3 @@
 #!/bin/sh
-
-docker build . -t public.ecr.aws/n4q2f2p4/glue-local:3.0
+source ./tag.sh
+docker build . -t $DST
