@@ -56,12 +56,15 @@ ENV PATH=${M2_HOME}/bin:${GLUE_HOME}/bin:$PATH
 ENV PYTHONPATH=${GLUE_HOME}/spark/jars/spark-core_2.12-3.1.1-amzn-0.jar:${GLUE_HOME}/spark/python/lib/pyspark.zip:${GLUE_HOME}/spark/python/lib/py4j-0.10.9-src.zip:${GLUE_HOME}/lib/python3.6/site-packages
 ENV LD_LIBRARY_PATH=${GLUE_HOME}/lib/hadoop-lzo-native:${GLUE_HOME}/lib/hadoop-native/:${GLUE_HOME}/lib/glue-native
 ENV SPARK_CONF_DIR=${GLUE_HOME}/conf
-ENV PYSPARK_PYTHON=/usr/bin/python3
 #ENV ZEPPELIN_PORT 9001
 #ENV ZEPPELIN_ADDR 0.0.0.0
 
+ENV PYTHONPATH="${PYTHONPATH}:/project/"
+
 # additional python lib/bin
 RUN pip install awscli pyspark==3.1.1 pytest boto3 delta-spark==1.0.0
+RUN pip install pandas
+
 RUN ln -s /usr/local/bin/pyspark ${SPARK_HOME}/bin/pyspark
 
 # to run spark in local mode, and enable s3a filesystem instead of EMR
