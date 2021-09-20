@@ -4,4 +4,5 @@ aws ecr-public get-login-password --region us-east-1 | docker login --username A
 docker push $DST
 
 # github
-# ghcr.io/evorra/glue-local 
+# authent?
+# docker push ghcr.io/evorra/glue-local:3.0.1

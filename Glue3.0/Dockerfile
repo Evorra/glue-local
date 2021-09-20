@@ -20,32 +20,32 @@ RUN curl -SsL https://aws-glue-etl-artifacts.s3.amazonaws.com/glue-3.0/spark-3.1
 ADD ./zip/glue3-opt-amazon.tgz /
 
 # here is the env dump we collected from a Glue worker
-#AWS_DEFAULT_REGION : us-east-1
-#AWS_METADATA_SERVICE_NUM_ATTEMPTS : 50
-#CONTAINER_HOST_PRIVATE_IP : 172.35.33.46
-#ERROR_FILE_NAME_LOCATION : /reporting/error.txt
-#GLUE_COMMAND_CRITERIA : glueetl
-#GLUE_TASK_GROUP_ID : 6c1d9835-6254-4f4b-9030-7bbcbf40331a
-#HOSTNAME : ip-172-35-33-46.ec2.internal
-#OMP_NUM_THREADS : 4
-#PYSPARK_GATEWAY_PORT : 46819
-#PYSPARK_GATEWAY_SECRET : 23d350ca7757fa06ccd2ffde650c0ef1ef63b1a45a1c79a28a918934e309cb94
-#SHLVL : 0
-#SPARK_AUTH_SOCKET_TIMEOUT : 15
-#SPARK_BUFFER_SIZE : 65536
-#PYTHONUNBUFFERED : YES
-#USE_PROXY : false
-#WORKER_TYPE : G.1X
-#HOME : /home/spark
-#GLUE_PYTHON_VERSION : 3
-#GLUE_VERSION : 3.0
-#LANG : en_US.UTF-8
-#LD_LIBRARY_PATH : /opt/amazon/lib/hadoop-lzo-native:/opt/amazon/lib/hadoop-native/:/opt/amazon/lib/glue-native
-#PATH : /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/amazon/bin
-#PWD : /tmp
-#PYSPARK_PYTHON : /usr/bin/python3
-#PYTHONPATH : /opt/amazon/spark/jars/spark-core_2.12-3.1.1-amzn-0.jar:/opt/amazon/spark/python/lib/pyspark.zip:/opt/amazon/spark/python/lib/py4j-0.10.9-src.zip:/opt/amazon/lib/python3.6/site-packages
-#SPARK_CONF_DIR : /opt/amazon/conf
+# AWS_DEFAULT_REGION : us-east-1
+# AWS_METADATA_SERVICE_NUM_ATTEMPTS : 50
+# CONTAINER_HOST_PRIVATE_IP : 172.35.33.46
+# ERROR_FILE_NAME_LOCATION : /reporting/error.txt
+# GLUE_COMMAND_CRITERIA : glueetl
+# GLUE_TASK_GROUP_ID : 6c1d9835-6254-4f4b-9030-7bbcbf40331a
+# HOSTNAME : ip-172-35-33-46.ec2.internal
+# OMP_NUM_THREADS : 4
+# PYSPARK_GATEWAY_PORT : 46819
+# PYSPARK_GATEWAY_SECRET : 23d350ca7757fa06ccd2ffde650c0ef1ef63b1a45a1c79a28a918934e309cb94
+# SHLVL : 0
+# SPARK_AUTH_SOCKET_TIMEOUT : 15
+# SPARK_BUFFER_SIZE : 65536
+# PYTHONUNBUFFERED : YES
+# USE_PROXY : false
+# WORKER_TYPE : G.1X
+# HOME : /home/spark
+# GLUE_PYTHON_VERSION : 3
+# GLUE_VERSION : 3.0
+# LANG : en_US.UTF-8
+# LD_LIBRARY_PATH : /opt/amazon/lib/hadoop-lzo-native:/opt/amazon/lib/hadoop-native/:/opt/amazon/lib/glue-native
+# PATH : /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/amazon/bin
+# PWD : /tmp
+# PYSPARK_PYTHON : /usr/bin/python3
+# PYTHONPATH : /opt/amazon/spark/jars/spark-core_2.12-3.1.1-amzn-0.jar:/opt/amazon/spark/python/lib/pyspark.zip:/opt/amazon/spark/python/lib/py4j-0.10.9-src.zip:/opt/amazon/lib/python3.6/site-packages
+# SPARK_CONF_DIR : /opt/amazon/conf
 
 # Env variables
 ENV M2_HOME=/opt/apache-maven-3.6.0
@@ -83,6 +83,8 @@ RUN chmod +x $GLUE_HOME/bin/gluesparksubmit && \
 
 # Clean-up some tmp files
 RUN find /opt -name "._*" -type f -delete
+
+RUN echo "alias ll='ls -al'" >> /root/.bashrc
 
 WORKDIR /project
 #CMD ["/opt/zeppelin-0.10.0-bin-all/bin/zeppelin.sh"]
