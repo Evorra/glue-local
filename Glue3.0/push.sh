@@ -5,4 +5,4 @@ docker push $DST
 
 # github
 # authent?
-# docker push ghcr.io/evorra/glue-local:3.0.1
+# docker push ghcr.io/evorra//$IMG:$VERSION

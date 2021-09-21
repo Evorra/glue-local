@@ -64,6 +64,7 @@ ENV PYTHONPATH="${PYTHONPATH}:/project/"
 # additional python lib/bin
 RUN pip install awscli pyspark==3.1.1 pytest boto3 delta-spark==1.0.0
 RUN pip install pandas
+RUN pip install pytest-profiling
 
 RUN ln -s /usr/local/bin/pyspark ${SPARK_HOME}/bin/pyspark
 
