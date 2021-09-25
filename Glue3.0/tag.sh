@@ -1,5 +1,5 @@
 #!/bin/sh
 export REPO=public.ecr.aws/evorra
 export IMG=glue-local
-export VERSION=3.0.4
+export VERSION=3.0.5
 export DST=$REPO/$IMG:$VERSION
