@@ -9,6 +9,6 @@ Go in the corresponding folder and use the provided scripts:
 
 Glue 3.0 follows a spcial process.  
 - Follow the instratructions in https://github.com/alrouen/local-aws-glue-v3-zeppelin.  
-- Use the provided python script to zip Glue distribution and save it in one of your s3 bucker.  
+- Use the provided python script to zip Glue distribution and save it in one of your s3 bucket.  
 - From there download the zip, store it in a zip folder, translate it into a tgz archive preserving ./opt/amazon as root folder.  
-- From there use the ./build.sh script.  
+- Use the ./build.sh script.  
