@@ -5,4 +5,4 @@ docker push $DST
 
 # github
 # authent?
-# docker push ghcr.io/evorra//$IMG:$VERSION
+# docker push ghcr.io/evorra/$IMG:$VERSION

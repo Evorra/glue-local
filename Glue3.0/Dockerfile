@@ -13,7 +13,7 @@ RUN wget https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public -O public
 	
 # Spark / maven (still required?) / Amazon Glue3 packages (captured from live running job : /opt/amazon folder) and Zeppelin
 RUN curl -SsL https://aws-glue-etl-artifacts.s3.amazonaws.com/glue-common/apache-maven-3.6.0-bin.tar.gz | tar -C /opt --warning=no-unknown-keyword -xzf -
-RUN curl -SsL https://aws-glue-etl-artifacts.s3.amazonaws.com/glue-3.0/spark-3.1.1-amzn-0-bin-3.2.1-amzn-3.tgz | tar -C /opt --warning=no-unknown-keyword -xzf -
+RUN curl -SsL https://aws-glue-etl-artifacts.s3.amazonaws.com/glue-3.0/spark-3.1.1-amzn-0-bin-3.2.1-amzn-3.tgz | tar -C /opt --warning=no-unknown-keyword -xvf -
 #RUN curl -SsL https://mirror.checkdomain.de/apache/zeppelin/zeppelin-0.10.0/zeppelin-0.10.0-bin-all.tgz | tar -C /opt --warning=no-unknown-keyword -xzf -
 
 # copy the zip we saved from a Glue worker
@@ -66,7 +66,7 @@ RUN pip install awscli pyspark==3.1.1 pytest boto3 delta-spark==1.0.0
 RUN pip install pandas
 RUN pip install pytest-profiling
 
-RUN ln -s /usr/local/bin/pyspark ${SPARK_HOME}/bin/pyspark
+RUN ln -sf /usr/local/bin/pyspark ${SPARK_HOME}/bin/pyspark
 
 # to run spark in local mode, and enable s3a filesystem instead of EMR
 RUN sed -i 's/spark.master jes/spark.master local/g' /opt/amazon/conf/spark-defaults.conf
@@ -89,6 +89,10 @@ RUN chmod +x $GLUE_HOME/bin/gluesparksubmit && \
 RUN find /opt -name "._*" -type f -delete
 
 RUN echo "alias ll='ls -al'" >> /root/.bashrc
+
+# removed info logs and updated the driver size
+RUN sed -i 's/log4j.rootLogger=.*/log4j.rootLogger=ERROR, console/' /opt/amazon/conf/log4j.properties
+RUN echo 'spark.driver.memory 3g' >> /opt/amazon/conf/spark-defaults.conf
 
 WORKDIR /project
 #CMD ["/opt/zeppelin-0.10.0-bin-all/bin/zeppelin.sh"]
