@@ -94,6 +94,17 @@ RUN echo "alias ll='ls -al'" >> /root/.bashrc
 RUN sed -i 's/log4j.rootLogger=.*/log4j.rootLogger=ERROR, console/' /opt/amazon/conf/log4j.properties
 RUN echo 'spark.driver.memory 3g' >> /opt/amazon/conf/spark-defaults.conf
 
+# install jupyter
+RUN pip install jupyter jupyterthemes jupyter_contrib_nbextensions jupyter_contrib_nbextensions
+RUN pip install jupyterlab
+RUN mkdir -p /root/.local/share/jupyter/kernels/spark && \
+    jupyter contrib nbextension install --user && \
+    jupyter nbextensions_configurator enable --user && \
+    jupyter notebook --generate-config
+
+# launch
+# jupyter-lab --allow-root --no-browser --ip=0.0.0.0
+
 WORKDIR /project
-#CMD ["/opt/zeppelin-0.10.0-bin-all/bin/zeppelin.sh"]
+
 CMD ["bash"]
