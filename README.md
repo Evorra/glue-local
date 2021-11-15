@@ -11,4 +11,5 @@ Glue 3.0 follows a spcial process.
 - Follow the instratructions in https://github.com/alrouen/local-aws-glue-v3-zeppelin.  
 - Use the provided python script to zip Glue distribution and save it in one of your s3 bucket.  
 - From there download the zip, store it in a zip folder, translate it into a tgz archive preserving ./opt/amazon as root folder.  
-- Use the ./build.sh script.  
+- Use the ./build.sh script.
+- I added support for Jupyter notebooks in this image, launch the container with the command `jupyter-lab --allow-root --no-browser --ip=0.0.0.0` and connect to the service with the URL displayed in the terminal
