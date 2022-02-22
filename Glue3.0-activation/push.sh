@@ -4,5 +4,6 @@ aws ecr-public get-login-password --region us-east-1 | docker login --username A
 docker push $DST
 
 # github
-# authent?
-# docker push ghcr.io/evorra/$IMG:$VERSION
+#export CR_PAT=<your PAT>
+#echo $CR_PAT | docker login ghcr.io -u <your id> --password-stdin
+#docker push ghcr.io/evorra/$IMG:$VERSION
