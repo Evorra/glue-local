@@ -17,11 +17,3 @@ Glue 3.0 follows a special process.
 Glue 3.0-activation
 - 2022-02-22: Added google libraries for dv360 integration
 - modified version of the Glue3.0 image including python libraries needed for the facebook integration.
-
-## Build notes for Glue3.0-activation on WSL2 / ZSH / Podman
-
-```bash
-cd Glue3.0-activation
-source tag.sh
-podman build . -t $DST
-```
