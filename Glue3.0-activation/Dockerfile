@@ -1,6 +1,6 @@
 FROM public.ecr.aws/evorra/glue-local:3.0.9
 
-RUN pip install facebook_business retrying
+RUN pip install facebook_business google retrying
 
 WORKDIR /project
 

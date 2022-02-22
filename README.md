@@ -15,4 +15,5 @@ Glue 3.0 follows a special process.
 - I added support for Jupyter notebooks in this image, launch the container with the command `jupyter-lab --allow-root --no-browser --ip=0.0.0.0` and connect to the service with the URL displayed in the terminal
 
 Glue 3.0-activation
+- 2022-02-22: Added google libraries for dv360 integration
 - modified version of the Glue3.0 image including python libraries needed for the facebook integration.
