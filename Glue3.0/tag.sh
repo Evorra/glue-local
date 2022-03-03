@@ -1,6 +1,10 @@
 #!/bin/sh
-#export REPO=public.ecr.aws/evorra # AWS
-export REPO=ghcr.io/evorra # GITHUB
+
+export REPO_AWS=public.ecr.aws/evorra
+export REPO_GITHUB=ghcr.io/evorra
+
 export IMG=glue-local
-export VERSION=3.0.9
-export DST=$REPO/$IMG:$VERSION
+export VERSION=3.0.10
+
+export DST_AWS=$REPO_AWS/$IMG:$VERSION
+export DST_GITHUB=$REPO_GITHUB/$IMG:$VERSION

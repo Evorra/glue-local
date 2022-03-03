@@ -105,10 +105,9 @@ RUN mkdir -p /root/.local/share/jupyter/kernels/spark && \
 # launch
 # jupyter-lab --allow-root --no-browser --ip=0.0.0.0
 
-# install pytest-xdist to run tests in //
 RUN pip install pytest-xdist
-
 RUN pip install pyjwt
+RUN pip install geoip2
 
 WORKDIR /project
 
